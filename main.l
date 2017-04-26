@@ -39,8 +39,8 @@ plus     "+"
 minus    "-"
 inum     [0-9]+
 fnum     [0-9]+\.[0-9]+
-blank    (" ")+
-eol      [\n\t\r]
+blank    [' '\t\r]+
+eol      \n
 
 %X COMMENT
 %X STRING 
@@ -54,12 +54,13 @@ eol      [\n\t\r]
 {minus}     { token_stream.push_back( token("minus"  ,yytext) ); }
 {inum}      { token_stream.push_back( token("inum"   ,yytext) ); }
 {fnum}      { token_stream.push_back( token("fnum"   ,yytext) ); }
-{blank}
-"/*"          { BEGIN COMMENT;}
-<COMMENT>.|{eol} { }
-<COMMENT>"*/" { BEGIN INITIAL;}
-"\""          { BEGIN STRING; }
-<STRING>[^\"\n]*\" { string t = string(yytext).substr(0,strlen(yytext)-1);token_stream.push_back( token("string"  , t)); BEGIN INITIAL; }
+
+"/*"                { BEGIN COMMENT; }
+<COMMENT>.|{eol}    {}
+<COMMENT>"*/"       { BEGIN INITIAL; }
+"\""                  { BEGIN STRING; }
+<STRING>[^\"]*\"         { BEGIN INITIAL;string t = string(yytext).substr(0,strlen(yytext)-1);token_stream.push_back( token("string"   ,t) ); }
+{blank}       {}
 {eol}         {} 
 .             {}
 
@@ -101,11 +102,16 @@ Stmts -> Stmt Stmts
        | λ
 
 Stmt  -> id assign Val Expr
-       | print id
+       | print Val Expr
+       | print string Expr_s
+       | print Val Expr_s
 
 Expr  -> plus Val Expr
        | minus Val Expr
        | λ
+
+Expr_s -> plus Val Expr_s
+       |  plus string Expr_s
 
 Val   -> id
        | inum
@@ -260,7 +266,22 @@ return_code Stmt(){
             parsed_stream.push_back(peek(token_stream));
             pop(token_stream);
         }else if( peek(token_stream) == token("string") ){
-            cout << peek(token_stream).value << endl;
+            //cout << peek(token_stream).value << endl;
+            string t = peek(token_stream).value;
+            for(int i = 0 ; i < t.length() ; i++){
+                if(t[i]=='\\'){
+                    if( t[i+1] == 'n' ){
+                        cout << endl;
+                    }else if( t[i+1]=='\\'){
+                        cout << "\\" ;
+                    }else{
+                        cout << "\\" << t[i+1];
+                    }
+                    i++;
+                }else{
+                    cout << t[i] ;
+                }
+            }
             parsed_stream.push_back(peek(token_stream));
             pop(token_stream);
         }else{

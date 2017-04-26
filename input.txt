@@ -10,18 +10,22 @@ print ""
 a = 1.1 + 2.2
 print "a = 1.1 + 2.2 ="
 print a
+print "\n"
 
 print "b = 3 + 4 ="
 b = 3 + 4
 print b
+print "\n"
 
 print "a = a + b ="
 a = a + b
 print a
+print "\n"
 
 print "c = 1.2 - a ="
 c = 1.2 - a
 print c
+print "\n"
 
 print "d = 1+...+100 ="
 d =   1+ 2+ 3+ 4+ 5+ 6+ 7+ 8 +9+10+
@@ -35,5 +39,8 @@ d =   1+ 2+ 3+ 4+ 5+ 6+ 7+ 8 +9+10+
      81+82+83+84+85+86+87+88+89+90+
      91+92+93+94+95+96+97+98+99+100
 print d
-print "這就是字串"
+print "\n"
+print "這就是字串\n"
+print "跳脫字元\\n\n測試\n"
+print "\n\r\t"
 /* e = 999.999  f = 123 g = www print e print f print g*/
