@@ -42,7 +42,8 @@ fnum     [0-9]+\.[0-9]+
 blank    (" ")+
 eol      [\n\t\r]
 
-
+%X COMMENT
+%X STRING 
 %%
 {floatdcl}  { token_stream.push_back( token("float"  ,yytext) ); }
 {intdcl}    { token_stream.push_back( token("int"    ,yytext) ); }
@@ -53,9 +54,14 @@ eol      [\n\t\r]
 {minus}     { token_stream.push_back( token("minus"  ,yytext) ); }
 {inum}      { token_stream.push_back( token("inum"   ,yytext) ); }
 {fnum}      { token_stream.push_back( token("fnum"   ,yytext) ); }
-{blank}     
-{eol}       
-.           
+{blank}
+"/*"          { BEGIN COMMENT;}
+<COMMENT>.|{eol} { }
+<COMMENT>"*/" { BEGIN INITIAL;}
+"\""          { BEGIN STRING; }
+<STRING>[^\"\n]*\" { string t = string(yytext).substr(0,strlen(yytext)-1);token_stream.push_back( token("string"  , t)); BEGIN INITIAL; }
+{eol}         {} 
+.             {}
 
 %%
 
@@ -251,6 +257,10 @@ return_code Stmt(){
         pop(token_stream);
         if(  peek(token_stream) == token("id")  ){
             cout << stable.vals[stable[ peek(token_stream).value ]] << endl;
+            parsed_stream.push_back(peek(token_stream));
+            pop(token_stream);
+        }else if( peek(token_stream) == token("string") ){
+            cout << peek(token_stream).value << endl;
             parsed_stream.push_back(peek(token_stream));
             pop(token_stream);
         }else{
